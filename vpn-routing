@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# quit if we're called for the loopback
+if [ "$IFACE" = lo ]
+then
+        exit 0
+fi
+
+case "$MODE" in
+        start)
+                case "$PHASE" in
+                        pre-up)
+                                # Nothing to do here
+                                ;;
+                        post-up)
+                                # VPN-srv 10.0.0.249
+                                ip route add 192.168.1.0/24 via 10.0.0.249
+                                ;;
+                        *)
+                                echo "unknown phase: \"$PHASE\"" 1>&2
+                                exit 1
+                                ;;
+                esac
+                ;;
+
+        stop)
+                case "$PHASE" in
+                        pre-down)
+                                # VPN-srv 10.0.0.249
+                                ip route del 192.168.1.0/24 via 10.0.0.249
+                                ;;
+                        post-down)
+                                # Nothing to do here
+                                ;;
+                        *)
+                                echo "unknown phase: \"$PHASE\"" 1>&2
+                                exit 1
+                                ;;
+                esac
+                ;;
+
+        *)
+                echo "unknown mode: \"$MODE\"" 1>&2
+                exit 1
+                ;;
+esac
+
+exit 0
